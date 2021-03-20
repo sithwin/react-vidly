@@ -1,11 +1,26 @@
 import React, { Component } from "react";
 import { getMovies } from "../services/fakeMovieService";
-import Like from "./common/like";
+import { paginate } from "../utli/paginate";
+import _ from "lodash";
+
+import Pagination from "./common/pagination";
+import ListGroup from "./common/listGroup";
+import { getGenres } from "../services/fakeGenreService";
+import MoviesTable from "./movieTable";
 
 class Movies extends Component {
   state = {
-    movies: getMovies(),
+    movies: [],
+    genres: [],
+    currentPage: 1,
+    pageSize: 4,
+    sortColumn: { path: "title", order: "asc" },
   };
+
+  componentDidMount() {
+    const genres = [{ _id: "", name: "All Genres" }, ...getGenres()];
+    this.setState({ movies: getMovies(), genres: genres });
+  }
 
   handleDelete = (movie) => {
     const movies = this.state.movies.filter((m) => m._id !== movie._id);
@@ -20,51 +35,70 @@ class Movies extends Component {
     this.setState({ movies });
   };
 
+  handlePageChange = (page) => {
+    this.setState({ currentPage: page });
+  };
+
+  handleGenreSelect = (item) => {
+    this.setState({ selectedItem: item, currentPage: 1 });
+  };
+
+  handleSort = (sortColumn) => {
+    this.setState({ sortColumn });
+  };
+
+  getPageData = () => {
+    const {
+      pageSize,
+      currentPage,
+      movies: allMovies,
+      selectedItem,
+      sortColumn,
+    } = this.state;
+
+    const filtered =
+      selectedItem && selectedItem._id
+        ? allMovies.filter((m) => m.genre._id === selectedItem._id)
+        : allMovies;
+
+    const sorted = _.orderBy(filtered, [sortColumn.path], [sortColumn.order]);
+    const filteredMovies = paginate(sorted, currentPage, pageSize);
+
+    return { totalCount: filtered.length, data: filteredMovies };
+  };
+
   render() {
     const { length: count } = this.state.movies;
     if (count === 0) return <p>THere are no movies in the databases</p>;
 
-    return (
-      <React.Fragment>
-        <p>Showing {count} movies in the database.</p>
+    const { pageSize, currentPage, selectedItem, sortColumn } = this.state;
+    const { totalCount, data: filteredMovies } = this.getPageData();
 
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Title</th>
-              <th>Genre</th>
-              <th>Stock</th>
-              <th>Rate</th>
-              <th></th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {this.state.movies.map((movie) => (
-              <tr key={movie._id}>
-                <td>{movie.title}</td>
-                <td>{movie.genre.name}</td>
-                <td>{movie.numberInStock}</td>
-                <td>{movie.dailyRentalRate}</td>
-                <td>
-                  <Like
-                    liked={movie.liked}
-                    onClick={() => this.handleLike(movie)}
-                  />
-                </td>
-                <td>
-                  <button
-                    onClick={() => this.handleDelete(movie)}
-                    className="btn btn-danger btn-sm"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </React.Fragment>
+    return (
+      <div className="row">
+        <div className="col-3"></div>
+        <ListGroup
+          items={this.state.genres}
+          onItemSelect={this.handleGenreSelect}
+          selectedItem={selectedItem}
+        />
+        <div className="col">
+          <p>Showing {totalCount} movies in the database.</p>
+          <MoviesTable
+            movies={filteredMovies}
+            sortColumn={sortColumn}
+            onDelete={this.handleDelete}
+            onLike={this.handleLike}
+            onSort={this.handleSort}
+          />
+          <Pagination
+            itemsCount={totalCount}
+            currentPage={currentPage}
+            pageSize={pageSize}
+            onPageChange={this.handlePageChange}
+          />
+        </div>
+      </div>
     );
   }
 }
