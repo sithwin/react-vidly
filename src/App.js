@@ -8,18 +8,19 @@ import Customers from "./components/customer";
 import Rentals from "./components/rentals";
 import NotFound from "./components/notFound";
 import MovieDetails from "./components/movieDetails";
+import LoginForm from "./components/loginForm";
 
 function App() {
   return (
     <div>
       <NavBar />
       <main className="container">
-        <h1>Movies Rental</h1>
         <Switch>
           <Route path="/movies/:id" component={MovieDetails}></Route>
           <Route path="/movies" component={Movies}></Route>
           <Route path="/customers" component={Customers}></Route>
           <Route path="/Rentals" component={Rentals}></Route>
+          <Route path="/login" component={LoginForm}></Route>
           <Route path="/not-found" component={NotFound} />
           <Route path="/" exact component={Movies} />
           <Redirect to="/not-found" />
