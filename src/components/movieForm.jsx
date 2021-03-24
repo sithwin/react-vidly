@@ -21,12 +21,16 @@ class MovieForm extends Form {
     title: Joi.string().required().label("Title"),
     genreId: Joi.string().required().label("Genre"),
     numberInStock: Joi.number()
-      .integer()
+      .required()
       .min(0)
       .max(100)
-      .required()
+      .integer()
       .label("Number in Stock"),
-    dailyRentalRate: Joi.number().required().min(0).max(10).label("Rate"),
+    dailyRentalRate: Joi.number()
+      .required()
+      .min(0)
+      .max(10)
+      .label("Daily Rental Rate"),
   };
 
   componentDidMount() {
@@ -46,16 +50,15 @@ class MovieForm extends Form {
     return {
       _id: movie._id,
       title: movie.title,
-      genreId: movie.genres._id,
+      genreId: movie.genre._id,
       numberInStock: movie.numberInStock,
       dailyRentalRate: movie.dailyRentalRate,
     };
   }
 
   doSubmit = () => {
-    // Call the server
     saveMovie(this.state.data);
-    console.log("Submitted", this.state.data);
+
     this.props.history.push("/movies");
   };
 
@@ -65,9 +68,9 @@ class MovieForm extends Form {
         <h1>Movie Form</h1>
         <form onSubmit={this.handleSubmit}>
           {this.renderInput("title", "Title")}
-          {this.renderSelect("genreId", "Genre")}
+          {this.renderSelect("genreId", "Genre", this.state.genres)}
           {this.renderInput("numberInStock", "Number in Stock", "number")}
-          {this.renderInput("rate", "Rate", "number")}
+          {this.renderInput("dailyRentalRate", "Rate", "number")}
           {this.renderButton("Save")}
         </form>
       </div>
