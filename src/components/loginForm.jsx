@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import Joi from "joi-browser";
 
 import Form from "./common/form";
-import Input from "./common/input";
 
 class LoginForm extends Form {
   state = {
@@ -24,25 +23,12 @@ class LoginForm extends Form {
   };
 
   render() {
-    const { data, errors } = this.state;
     return (
       <div>
         <h1>Login</h1>
         <form onSubmit={this.handleSubmit}>
-          <Input
-            name="userName"
-            label="UserName"
-            value={data.userName}
-            onChange={this.handleChange}
-            error={errors.userName}
-          />
-          <Input
-            name="password"
-            label="Password"
-            value={data.password}
-            onChange={this.handleChange}
-            error={errors.password}
-          />
+          {this.renderInput("userName", "UserName")}
+          {this.renderInput("password", "Password", "password")}
           {this.renderButton("Login")}
         </form>
       </div>
