@@ -39,6 +39,7 @@ class Movies extends Component {
 
     return (
       <React.Fragment>
+        <Link to={`/movies/new`}>New Movie</Link>
         <p>Showing {count} movies in the database.</p>
 
         <table className="table">
